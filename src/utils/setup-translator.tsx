@@ -5,16 +5,32 @@ import TranslationItem from '@/contents/google-search/components/TranslationItem
 import type { DEFAULT_CONFIG } from '@/utils/config';
 import { getConfig } from '@/utils/config';
 import { flipLanguages } from '@/utils/flip-languages';
+import logger from '@/utils/log';
 import { translateText } from '@/utils/translate-text';
 
 export async function setupTranslator() {
+    logger.group('翻译器设置');
+    logger.debug('获取翻译配置...');
     const config = (await getConfig()) as typeof DEFAULT_CONFIG;
-    if (!config.enabled) return;
+
+    if (!config.enabled) {
+        logger.info('翻译功能已禁用，退出初始化');
+        logger.groupEnd();
+        return;
+    }
+
+    logger.info('翻译功能已启用', {
+        sourceLanguage: config.sourceLanguage,
+        targetLanguage: config.targetLanguage,
+    });
 
     // 查找搜索框元素 - 支持多种选择器以适应不同页面结构
     function findSearchInput(): HTMLTextAreaElement | HTMLInputElement | null {
+        logger.group('查找搜索输入框');
+
         // 1. 通过提供的XPath查找
         try {
+            logger.debug('尝试使用XPath查找搜索框');
             const xpath =
                 '/html/body/div[2]/div[2]/form/div[1]/div[1]/div[2]/div[1]/div[2]/textarea';
             const result = document.evaluate(
@@ -25,23 +41,50 @@ export async function setupTranslator() {
                 null,
             );
             const element = result.singleNodeValue as HTMLTextAreaElement;
-            if (element) return element;
-        } catch {
-            console.log('XPath search failed, trying other methods');
+            if (element) {
+                logger.info('通过XPath找到搜索框', { type: 'textarea', id: element.id });
+                logger.groupEnd();
+                return element;
+            }
+            logger.debug('XPath查找无结果');
+        } catch (error) {
+            logger.warn('XPath查找失败', error);
         }
 
         // 2. 查找textarea输入框
+        logger.debug('尝试使用CSS选择器查找textarea');
         const textarea = document.querySelector('textarea[name="q"]') as HTMLTextAreaElement;
-        if (textarea) return textarea;
+        if (textarea) {
+            logger.info('找到textarea搜索框', { id: textarea.id });
+            logger.groupEnd();
+            return textarea;
+        }
 
         // 3. 查找input输入框
+        logger.debug('尝试使用CSS选择器查找input');
         const input = document.querySelector('input[name="q"]') as HTMLInputElement;
-        if (input) return input;
+        if (input) {
+            logger.info('找到input搜索框', { id: input.id, type: input.type });
+            logger.groupEnd();
+            return input;
+        }
 
         // 4. 通用选择器
+        logger.debug('尝试使用通用选择器');
         const anySearchInput = document.querySelector(
             'input[type="text"][name="q"], textarea[name="q"]',
         );
+
+        if (anySearchInput) {
+            logger.info('通过通用选择器找到搜索框', {
+                tagName: anySearchInput.tagName,
+                id: (anySearchInput as HTMLElement).id,
+            });
+        } else {
+            logger.warn('未找到搜索框，翻译功能将无法工作');
+        }
+
+        logger.groupEnd();
         return anySearchInput as HTMLTextAreaElement | HTMLInputElement | null;
     }
 

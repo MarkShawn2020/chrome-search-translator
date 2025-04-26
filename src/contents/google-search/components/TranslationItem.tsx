@@ -52,7 +52,7 @@ const TranslationItem: React.FC<TranslationItemProps> = (props) => {
             <button
                 className="translation-switch-btn"
                 onClick={handleClick}
-                onMouseDown={(e) => e.preventDefault()} // 防止鼠标按下事件引起的失焦和导航
+                // onMouseDown={(e) => e.preventDefault()} // 防止鼠标按下事件引起的失焦和导航
                 title="点击替换搜索框输入"
             >
                 <svg

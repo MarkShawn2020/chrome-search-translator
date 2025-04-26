@@ -168,9 +168,9 @@ export async function setupTranslator() {
                         return false;
                     });
 
-                    // 在处理完成后恢复原始的提交处理程序
-                    if (!originalSubmit) return;
                     setTimeout(() => {
+                        // 在处理完成后恢复原始的提交处理程序
+                        if (!originalSubmit) return;
                         form.addEventListener('submit', originalSubmit);
                     }, 200);
                 }

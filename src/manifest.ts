@@ -34,7 +34,6 @@ const manifest: Manifest.WebExtensionManifest = {
                 'https://google.com/*',
                 'https://google.com/',
                 'https://*.google.com/*',
-                'https://*.google.co.*/*',
                 'https://*.google.com.hk/*',
                 'https://*.google.com.cn/*',
             ],

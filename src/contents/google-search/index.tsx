@@ -12,12 +12,9 @@ const LOG_LEVEL = {
     ERROR: 3,
 };
 
-// 当前日志级别 - 设置为最低级别，确保所有日志都能看到
-const CURRENT_LOG_LEVEL = LOG_LEVEL.DEBUG;
-
 // 日志函数
 function log(level: number, ...args: any[]) {
-    // 确保所有级别的日志都显示出来
+    // 始终记录所有日志
     const prefix = [
         '[TRANSLATOR:DEBUG]',
         '[TRANSLATOR:INFO]',
@@ -85,7 +82,6 @@ async function translateText(
 
     try {
         // 使用Google翻译API
-        // 这里使用的是免费的API，实际应用中可能需要使用更可靠的付费API
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(
             text,
         )}`;
@@ -212,7 +208,9 @@ async function setupSearchBoxListener() {
             // 辅助函数：在特定元素中创建容器
             function createContainerInElement(element: Element): HTMLElement | null {
                 // 检查是否已存在
-                const existingContainer = document.querySelector('#chrome-search-translator');
+                const existingContainer = document.querySelector(
+                    '#chrome-search-translator',
+                ) as HTMLElement | null;
                 if (existingContainer) {
                     log(LOG_LEVEL.DEBUG, '找到现有翻译容器，重用它');
                     return existingContainer;
@@ -248,7 +246,6 @@ async function setupSearchBoxListener() {
                 // 如果找不到建议列表，则附加到表单或父元素
                 if (!inserted) {
                     log(LOG_LEVEL.INFO, '未找到搜索建议列表，将翻译容器附加到父元素');
-                    // 使用appendChild而不是append，因为TS有时无法识别Element的append方法
                     element.append(container);
                 }
 
@@ -295,12 +292,12 @@ async function setupSearchBoxListener() {
 
                     // 降级处理：如果React渲染失败，使用普通DOM API显示翻译结果
                     translationContainer.innerHTML = `
-                    <div class="translation-item">
-                        <div class="translation-content">
-                            <span class="translation-text">${translatedText}</span>
+                        <div class="translation-item">
+                            <div class="translation-content">
+                                <span class="translation-text">${translatedText}</span>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
                 }
             } catch (error) {
                 log(LOG_LEVEL.ERROR, '更新翻译容器时出错:', error);
@@ -420,33 +417,44 @@ async function setupSearchBoxListener() {
     } catch (error) {
         log(LOG_LEVEL.ERROR, '设置搜索框监听器时发生错误:', error);
     }
+}
 
-    // 初始化
-    function init() {
-        log(LOG_LEVEL.INFO, 'Chrome Search Translator 正在初始化...');
-        // 确保DOM已完全加载
+// 初始化函数
+function initialize() {
+    log(LOG_LEVEL.INFO, '开始初始化插件...');
+    // 检查是否为Google搜索页面
+    const isGoogleSearch =
+        document.location.href.includes('google') &&
+        (document.location.href.includes('/search') || document.querySelector('input[name="q"]'));
+
+    if (isGoogleSearch) {
+        log(LOG_LEVEL.INFO, '检测到Google搜索页面，开始设置翻译功能');
+        log(LOG_LEVEL.INFO, '当前页面URL:', document.location.href);
+
+        // 确保在DOM准备好时运行
         if (document.readyState === 'loading') {
-            log(LOG_LEVEL.INFO, '文档加载中，等待DOMContentLoaded事件...');
+            log(LOG_LEVEL.INFO, '页面正在加载，等待DOMContentLoaded事件');
             document.addEventListener('DOMContentLoaded', () => {
-                log(LOG_LEVEL.INFO, 'DOMContentLoaded事件触发，开始设置搜索框监听器');
                 setupSearchBoxListener();
             });
         } else {
-            log(LOG_LEVEL.INFO, '文档已加载完成，直接设置搜索框监听器');
-            setupSearchBoxListener();
+            log(LOG_LEVEL.INFO, '页面已加载完成，直接运行搜索监听器');
+            // 给页面一点时间完全渲染
+            setTimeout(() => {
+                setupSearchBoxListener();
+            }, 500);
         }
 
-        // 添加MutationObserver以处理Google动态加载的页面
-        log(LOG_LEVEL.INFO, '设置MutationObserver以监视DOM变化...');
+        // 加入MutationObserver监听页面变化
+        log(LOG_LEVEL.INFO, '设置MutationObserver监听DOM变化');
         const observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    // 当DOM结构变化时，尝试重新查找搜索框
                     const searchInput = document.querySelector(
                         'input[name="q"]',
-                    ) as HTMLInputElement;
+                    ) as HTMLInputElement | null;
                     if (searchInput && !searchInput.dataset.translatorInitialized) {
-                        log(LOG_LEVEL.INFO, '检测到DOM变化，发现新的搜索框元素，重新初始化...');
+                        log(LOG_LEVEL.INFO, '检测到新的搜索框元素，重新初始化...');
                         setupSearchBoxListener();
                         break;
                     }
@@ -454,14 +462,31 @@ async function setupSearchBoxListener() {
             }
         });
 
-        // 观察整个document的变化
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-        });
+        // 监视整个document的变化
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+            });
+        } else {
+            // 如果还没有body，则等待其创建
+            document.addEventListener('DOMContentLoaded', () => {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                });
+            });
+        }
+    } else {
+        log(LOG_LEVEL.WARN, '当前页面不是Google搜索页面，脚本不在这个页面运行');
+        log(LOG_LEVEL.INFO, '当前页面URL:', document.location.href);
     }
-
-    init();
 }
 
-setupSearchBoxListener();
+// 在页面加载完成后运行初始化函数
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+} else {
+    // 如果页面已经加载完成，直接执行初始化
+    initialize();
+}

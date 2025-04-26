@@ -5,5 +5,6 @@ module.exports = {
     rules: {
         'import/default': OFF,
         'unicorn/consistent-function-scoping': 1,
+        'unicorn/no-empty-file': 1,
     },
 };

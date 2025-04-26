@@ -1,5 +1,11 @@
 // 获取用户配置
-import { DEFAULT_CONFIG } from '@/utils/log';
+
+// 默认配置
+export const DEFAULT_CONFIG = {
+    enabled: true,
+    sourceLanguage: 'zh-CN',
+    targetLanguage: 'en',
+};
 
 export async function getConfig() {
     return new Promise((resolve) => {

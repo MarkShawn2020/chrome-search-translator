@@ -2,9 +2,9 @@ import { createRoot } from 'react-dom/client';
 
 // 主要功能实现
 import TranslationItem from '@/contents/google-search/components/TranslationItem';
+import type { DEFAULT_CONFIG } from '@/utils/config';
 import { getConfig } from '@/utils/config';
 import { flipLanguages } from '@/utils/flip-languages';
-import type { DEFAULT_CONFIG } from '@/utils/log';
 import { translateText } from '@/utils/translate-text';
 
 export async function setupTranslator() {
@@ -165,10 +165,12 @@ export async function setupTranslator() {
 
             // 如果输入为空或与上次相同，不执行翻译
             if (!currentValue || currentValue === lastInputValue) {
-                if (!currentValue && // 移除翻译容器
-                    translationContainer) {
-                        translationContainer.style.display = 'none';
-                    }
+                if (
+                    !currentValue && // 移除翻译容器
+                    translationContainer
+                ) {
+                    translationContainer.style.display = 'none';
+                }
                 return;
             }
 

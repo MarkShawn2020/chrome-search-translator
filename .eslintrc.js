@@ -4,5 +4,6 @@ module.exports = {
     extends: '@yutengjing/eslint-config-react',
     rules: {
         'import/default': OFF,
+        'unicorn/consistent-function-scoping': 1,
     },
 };

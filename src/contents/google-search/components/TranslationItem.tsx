@@ -32,7 +32,12 @@ const TranslationItem: React.FC<TranslationItemProps> = (props) => {
         targetLang,
         onSwitch,
     } = props;
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent) => {
+        // 阻止事件冒泡和默认行为，防止触发Google搜索的页面跳转
+        e.preventDefault();
+        e.stopPropagation();
+
+        // 调用切换回调
         onSwitch(true);
     };
 
@@ -47,6 +52,7 @@ const TranslationItem: React.FC<TranslationItemProps> = (props) => {
             <button
                 className="translation-switch-btn"
                 onClick={handleClick}
+                onMouseDown={(e) => e.preventDefault()} // 防止鼠标按下事件引起的失焦和导航
                 title="点击替换搜索框输入"
             >
                 <svg

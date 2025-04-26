@@ -158,6 +158,22 @@ export async function setupTranslator() {
                 logger.group('切换输入功能');
                 logger.info('用户点击切换按钮', { originalText });
 
+                // 阻止任何正在进行的表单提交
+                const form = searchInput.closest('form');
+                if (form) {
+                    const originalSubmit = form.onsubmit;
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    });
+
+                    // 在处理完成后恢复原始的提交处理程序
+                    setTimeout(() => {
+                        form.addEventListener('submit', originalSubmit);
+                    }, 200);
+                }
+
                 try {
                     // 更新配置 - 翻转源语言和目标语言
                     const newConfig = {
@@ -200,16 +216,19 @@ export async function setupTranslator() {
                         // 3. 触发多种事件确保Google搜索能识别变化
                         const events = ['input', 'change', 'keyup', 'keydown', 'keypress'];
 
-                        // 使用更精确的事件触发方式
+                        // 使用更精确的事件触发方式，但阻止事件冒泡以避免触发搜索
                         events.forEach((eventType) => {
-                            const event = new Event(eventType, { bubbles: true, cancelable: true });
+                            const event = new Event(eventType, {
+                                bubbles: false,
+                                cancelable: true,
+                            });
                             searchInput.dispatchEvent(event);
                         });
 
                         // 4. 额外处理：如果是textarea，尝试触发一个合成事件
                         if (searchInput.tagName.toLowerCase() === 'textarea') {
                             const textEvent = new InputEvent('input', {
-                                bubbles: true,
+                                bubbles: false, // 设置为false以避免事件冒泡触发导航
                                 cancelable: true,
                                 inputType: 'insertText',
                                 data: translated,

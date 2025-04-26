@@ -24,6 +24,7 @@ module.exports = (api) => {
         presets: ['@babel/preset-typescript', envPreset],
         plugins: [
             '@babel/plugin-transform-runtime',
+            '@babel/plugin-transform-class-properties',
             ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
             'lodash',
             importPlugin,

@@ -112,14 +112,14 @@ export async function setupTranslator() {
         let translationContainer: HTMLElement | null = null;
 
         // 创建翻译结果容器
-        function createTranslationContainer() {
+        function createTranslationContainer(): HTMLElement {
             logger.debug('创建翻译结果容器');
 
             // 检查是否已存在
             const existingContainer = document.querySelector('#chrome-search-translator');
             if (existingContainer) {
                 logger.debug('使用已存在的翻译容器');
-                return existingContainer;
+                return existingContainer as HTMLElement;
             }
 
             // 创建新容器
@@ -150,7 +150,7 @@ export async function setupTranslator() {
             }
 
             logger.info('翻译容器创建成功', { id: container.id });
-            return container;
+            return container as HTMLElement;
         }
 
         // 更新或创建翻译容器

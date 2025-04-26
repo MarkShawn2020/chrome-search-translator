@@ -11,7 +11,8 @@ const manifest: Manifest.WebExtensionManifest = {
     minimum_chrome_version: pkg.browserslist.production.split(' ')[2],
     permissions: ['storage'],
     content_security_policy: {
-        extension_pages: "script-src 'self' http://localhost; object-src 'self';",
+        extension_pages:
+            "script-src 'self' 'wasm-unsafe-eval' http://localhost:* http://127.0.0.1:*; object-src 'self';",
     },
     web_accessible_resources: [
         {
@@ -26,7 +27,7 @@ const manifest: Manifest.WebExtensionManifest = {
         {
             matches: ['https://github.com/*'],
             css: ['css/all.css'],
-            js: ['js/all.js', ...(__DEV__ ? [] : ['js/all.js'])],
+            js: ['js/all.js'],
         },
         {
             matches: [

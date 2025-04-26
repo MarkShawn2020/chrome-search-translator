@@ -8,7 +8,7 @@ const manifest: Manifest.WebExtensionManifest = {
     version: pkg.version,
     description: pkg.description,
     manifest_version: 3,
-    minimum_chrome_version: pkg.browserslist.production.split(' ')[2],
+    minimum_chrome_version: pkg.browserslist[0].split(' ')[2],
     permissions: ['storage'],
     content_security_policy: {
         extension_pages: "script-src 'self' http://localhost; object-src 'self';",

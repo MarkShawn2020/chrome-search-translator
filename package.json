@@ -2,10 +2,9 @@
     "name": "chrome-search-translator",
     "displayName": "Google Search Translator",
     "version": "0.1.7",
-    "browserslist": {
-        "production": "Chrome >= 96",
-        "development": "last 1 chrome version"
-    },
+    "browserslist": [
+        "Chrome >= 96"
+    ],
     "description": "实时翻译Google搜索内容，支持中英文互译和快速替换。Search with instant translation, supporting Chinese-English switching.",
     "private": true,
     "author": "YuTengjing",

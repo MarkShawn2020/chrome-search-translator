@@ -9,7 +9,7 @@ const manifest: Manifest.WebExtensionManifest = {
     description: pkg.description,
     manifest_version: 3,
     minimum_chrome_version: pkg.browserslist.split(' ')[2],
-    permissions: [],
+    permissions: ['storage'],
     content_security_policy: {
         extension_pages: "script-src 'self' http://localhost; object-src 'self';",
     },
@@ -27,6 +27,15 @@ const manifest: Manifest.WebExtensionManifest = {
             matches: ['https://github.com/*'],
             css: ['css/all.css'],
             js: ['js/all.js', ...(__DEV__ ? [] : ['js/all.js'])],
+        },
+        {
+            matches: [
+                'https://www.google.com/*',
+                'https://google.com/*',
+                'https://*.google.com/search*',
+            ],
+            css: ['css/google-search.css'],
+            js: ['js/google-search.js'],
         },
     ],
     action: {

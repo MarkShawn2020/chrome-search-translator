@@ -1,9 +1,9 @@
 {
-    "name": "awesome-chrome-extension-boilerplate",
-    "displayName": "awesome chrome extension boilerplate",
+    "name": "chrome-search-translator",
+    "displayName": "Google Search Translator",
     "version": "1.0.0",
     "browserslist": "Chrome >= 96",
-    "description": "made by awesome-chrome-extension-boilerplate",
+    "description": "实时翻译Google搜索内容，支持中英文互译和快速替换。Search with instant translation, supporting Chinese-English switching.",
     "private": true,
     "author": "YuTengjing",
     "license": "MIT",
@@ -34,13 +34,10 @@
     },
     "lint-staged": {
         "*.{ts,tsx,js}": [
-            "eslint -c .eslintrc.js",
+            "eslint -c .eslintrc.js --fix",
             "format-imports --config .vscode/import-sorter.json"
         ],
-        "*.{css,less,scss}": [
-            "stylelint --config .stylelintrc.json"
-        ],
-        "*.{ts,tsx,json,js,css,less,scss,md}": [
+        "*.{ts,tsx,json,js,md}": [
             "prettier --write"
         ]
     },

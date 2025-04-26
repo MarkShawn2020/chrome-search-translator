@@ -12,16 +12,45 @@ const LOG_LEVEL = {
     ERROR: 3,
 };
 
-// 当前日志级别
+// 当前日志级别 - 设置为最低级别，确保所有日志都能看到
 const CURRENT_LOG_LEVEL = LOG_LEVEL.DEBUG;
 
 // 日志函数
 function log(level: number, ...args: any[]) {
-    if (level >= CURRENT_LOG_LEVEL) {
-        const prefix = ['[DEBUG]', '[INFO]', '[WARN]', '[ERROR]'][level];
-        console.log(prefix, ...args);
+    // 确保所有级别的日志都显示出来
+    const prefix = [
+        '[TRANSLATOR:DEBUG]',
+        '[TRANSLATOR:INFO]',
+        '[TRANSLATOR:WARN]',
+        '[TRANSLATOR:ERROR]',
+    ][level];
+
+    // 根据日志级别使用不同的控制台函数
+    switch (level) {
+        case LOG_LEVEL.DEBUG:
+            console.debug(prefix, ...args);
+            break;
+        case LOG_LEVEL.INFO:
+            console.info(prefix, ...args);
+            break;
+        case LOG_LEVEL.WARN:
+            console.warn(prefix, ...args);
+            break;
+        case LOG_LEVEL.ERROR:
+            console.error(prefix, ...args);
+            break;
+        default:
+            console.log(prefix, ...args);
     }
 }
+
+// 立即输出初始化日志，确认脚本已加载
+console.log(
+    '%c Google Search Translator 插件已加载 %c v0.0.2',
+    'background: #4285F4; color: white; padding: 2px;',
+    'background: #34A853; color: white; padding: 2px;',
+);
+log(LOG_LEVEL.INFO, '内容脚本已加载，开始初始化...');
 
 // 默认配置
 const DEFAULT_CONFIG = {
@@ -181,7 +210,7 @@ async function setupSearchBoxListener() {
             return createContainerInElement(searchForm);
 
             // 辅助函数：在特定元素中创建容器
-            function createContainerInElement(element: Element) {
+            function createContainerInElement(element: Element): HTMLElement | null {
                 // 检查是否已存在
                 const existingContainer = document.querySelector('#chrome-search-translator');
                 if (existingContainer) {
@@ -219,6 +248,7 @@ async function setupSearchBoxListener() {
                 // 如果找不到建议列表，则附加到表单或父元素
                 if (!inserted) {
                     log(LOG_LEVEL.INFO, '未找到搜索建议列表，将翻译容器附加到父元素');
+                    // 使用appendChild而不是append，因为TS有时无法识别Element的append方法
                     element.append(container);
                 }
 
@@ -297,7 +327,9 @@ async function setupSearchBoxListener() {
                 );
 
                 // 更新输入框值
-                searchInput?.value = translated;
+                if (searchInput) {
+                    searchInput.value = translated;
+                }
 
                 // 触发input事件以更新搜索建议
                 searchInput?.dispatchEvent(new Event('input', { bubbles: true }));

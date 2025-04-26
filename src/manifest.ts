@@ -32,7 +32,11 @@ const manifest: Manifest.WebExtensionManifest = {
             matches: [
                 'https://www.google.com/*',
                 'https://google.com/*',
-                'https://*.google.com/search*',
+                'https://google.com/',
+                'https://*.google.com/*',
+                'https://*.google.co.*/*',
+                'https://*.google.com.hk/*',
+                'https://*.google.com.cn/*',
             ],
             css: ['css/google-search.css'],
             js: ['js/google-search.js'],

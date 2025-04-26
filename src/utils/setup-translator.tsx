@@ -254,6 +254,33 @@ export async function setupTranslator() {
                     }
 
                     logger.info('输入框内容已更新', { newValue: searchInput.value });
+
+                    // 在输入框更新后，模拟用户输入行为来触发Google搜索的变化检测
+                    setTimeout(() => {
+                        logger.info('触发Google搜索变化检测');
+
+                        // 创建带有正确配置的事件对象，让Google搜索能检测到输入变化
+                        // 注意：这里的bubbles设置为true，以确保事件能传播到Google搜索的监听器
+                        const inputEvent = new InputEvent('input', {
+                            bubbles: true, // 事件应该冒泡以便被Google搜索检测到
+                            cancelable: true,
+                            composed: true, // 确保事件可以跨过Shadow DOM边界
+                            inputType: 'insertText',
+                            data: searchInput.value,
+                        });
+
+                        // 触发输入事件
+                        searchInput.dispatchEvent(inputEvent);
+
+                        // 触发变化事件
+                        const changeEvent = new Event('change', {
+                            bubbles: true,
+                            cancelable: true,
+                        });
+                        searchInput.dispatchEvent(changeEvent);
+
+                        logger.info('已触发Google搜索变化检测事件');
+                    }, 200); // 给予足够的时间让前面的输入框更新操作完成
                 } catch (error) {
                     logger.error('切换输入时发生错误', { error });
                 } finally {

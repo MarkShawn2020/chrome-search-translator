@@ -169,6 +169,7 @@ export async function setupTranslator() {
                     });
 
                     // 在处理完成后恢复原始的提交处理程序
+                    if (!originalSubmit) return;
                     setTimeout(() => {
                         form.addEventListener('submit', originalSubmit);
                     }, 200);

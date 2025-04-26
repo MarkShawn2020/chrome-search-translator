@@ -11,7 +11,7 @@ import { translateText } from '@/utils/translate-text';
 export async function setupTranslator() {
     logger.group('翻译器设置');
     logger.debug('获取翻译配置...');
-    const config = (await getConfig()) as typeof DEFAULT_CONFIG;
+    let config = (await getConfig()) as typeof DEFAULT_CONFIG;
 
     if (!config.enabled) {
         logger.info('翻译功能已禁用，退出初始化');
@@ -175,19 +175,6 @@ export async function setupTranslator() {
                 }
 
                 try {
-                    // 更新配置 - 翻转源语言和目标语言
-                    const newConfig = {
-                        ...config,
-                        ...flipLanguages(config.sourceLanguage, config.targetLanguage),
-                    };
-
-                    // 保存新配置
-                    logger.debug('保存新的语言配置', {
-                        from: newConfig.sourceLanguage,
-                        to: newConfig.targetLanguage,
-                    });
-                    chrome.storage.sync.set({ translatorConfig: newConfig });
-
                     // 获取当前输入框值的翻译结果
                     logger.debug('开始翻译原文本', { text: originalText });
                     const translated = await translateText(
@@ -201,6 +188,21 @@ export async function setupTranslator() {
                         translatedText: translated,
                         success: translated !== originalText,
                     });
+
+                    // 更新配置 - 翻转源语言和目标语言
+                    const newConfig = {
+                        ...config,
+                        ...flipLanguages(config.sourceLanguage, config.targetLanguage),
+                    };
+
+                    // 保存新配置
+                    logger.debug('保存新的语言配置', {
+                        from: newConfig.sourceLanguage,
+                        to: newConfig.targetLanguage,
+                    });
+                    chrome.storage.sync.set({ translatorConfig: newConfig });
+
+                    config = newConfig;
 
                     // 使用更可靠的方法更新输入框值
                     if (

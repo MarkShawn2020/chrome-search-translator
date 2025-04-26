@@ -16,8 +16,9 @@ export async function translateText(
 
     // 检查缓存
     if (translationCache[cacheKey]) {
-        logger.debug('使用缓存的翻译结果', { text, from: sourceLang, to: targetLang });
-        return translationCache[cacheKey];
+        const value = translationCache[cacheKey];
+        logger.debug('使用缓存的翻译结果', { text, from: sourceLang, to: targetLang, value });
+        return value;
     }
 
     try {

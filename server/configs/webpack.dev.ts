@@ -8,7 +8,7 @@ import commonConfig from './webpack.common';
 
 const devConfig = merge(commonConfig, {
     mode: 'development',
-    devtool: 'eval-source-map',
+    devtool: 'cheap-module-source-map',
     optimization: {
         minimize: false, // 开发模式下禁用压缩，保持代码原样
     },

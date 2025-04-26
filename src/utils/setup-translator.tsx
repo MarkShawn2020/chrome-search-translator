@@ -89,6 +89,7 @@ export async function setupTranslator() {
         let lastInputValue = '';
         let translationTimeout: number | undefined;
         let translationContainer: HTMLElement | null = null;
+        let root: ReturnType<typeof createRoot> | null = null;
 
         // 创建翻译结果容器
         function createTranslationContainer(): HTMLElement {
@@ -133,7 +134,13 @@ export async function setupTranslator() {
             if (!translationContainer) return;
 
             // 渲染React组件
-            const root = createRoot(translationContainer);
+            if (!root) {
+                // 只在第一次创建React根
+                logger.debug('创建React根组件');
+                root = createRoot(translationContainer);
+            }
+
+            // 重复使用现有的根进行更新
             root.render(
                 <TranslationItem
                     originalText={originalText}

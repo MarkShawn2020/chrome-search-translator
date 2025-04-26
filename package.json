@@ -1,7 +1,7 @@
 {
     "name": "chrome-search-translator",
     "displayName": "Google Search Translator",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "browserslist": {
         "production": "Chrome >= 96",
         "development": "last 1 chrome version"

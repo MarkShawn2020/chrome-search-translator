@@ -2,12 +2,6 @@
 
 > 一个实用的 Chrome 扩展，可实时翻译 Google 搜索内容，支持多语言互译和快速替换输入。
 
-基于 React & TypeScript & Webpack 构建
-
-## 项目介绍
-
-这是一个 Chrome 扩展插件，可以在 Google 搜索时自动提供输入内容的翻译结果。当您在搜索框中输入内容时，会在搜索建议的下拉框顶部显示翻译后的内容，并提供快速替换功能，让您可以一键切换搜索语言。
-
 ## :sparkles: 功能特性
 
 - :globe_with_meridians: **实时翻译**：在 Google 搜索框输入时，实时翻译您的搜索内容
@@ -56,7 +50,9 @@
 
 - `src/contents/google-search/index.tsx`: 核心内容脚本，处理翻译逻辑
 - `src/contents/google-search/components/TranslationItem.tsx`: 翻译结果 UI 组件
-- `src/options/App.tsx`: 选项页面逻辑和界面
+- `src/utils/setup-translator.tsx`: 翻译器设置与核心功能实现
+- `src/utils/translate-text.ts`: 翻译文本的工具函数，包含缓存机制
+- `src/options/App.tsx`: 选项页面逻辑和界面，提供翻译配置功能
 
 ### 开发环境
 
@@ -73,7 +69,11 @@ pnpm build
 
 ## :handshake: 贡献
 
-欢迎提交 Issue 和 Pull Request，一起完善这个项目。
+项目功能已全部完成，但仍然欢迎各种形式的贡献，帮助我们进一步优化该扩展。如果您发现了问题或有改进建议，请通过 GitHub Issues 提交。
+
+## :pray: 致谢
+
+- [tjx666/awesome-chrome-extension-boilerplate](https://github.com/tjx666/awesome-chrome-extension-boilerplate) - 提供了开发本扩展的基础模板
 
 ## :page_facing_up: 许可证
 

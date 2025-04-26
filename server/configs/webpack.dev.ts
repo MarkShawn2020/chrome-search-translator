@@ -8,7 +8,10 @@ import commonConfig from './webpack.common';
 
 const devConfig = merge(commonConfig, {
     mode: 'development',
-    devtool: 'source-map',
+    devtool: 'eval-source-map',
+    optimization: {
+        minimize: false, // 开发模式下禁用压缩，保持代码原样
+    },
     plugins: [
         new HotModuleReplacementPlugin(),
         new ReactRefreshWebpackPlugin({

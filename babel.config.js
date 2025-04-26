@@ -31,7 +31,22 @@ module.exports = (api) => {
         ],
         env: {
             development: {
-                presets: [['@babel/preset-react', { runtime: 'automatic', development: true }]],
+                presets: [
+                    ['@babel/preset-react', { runtime: 'automatic', development: true }],
+                    [
+                        '@babel/env',
+                        {
+                            modules: false,
+                            bugfixes: true,
+                            useBuiltIns: 'usage',
+                            loose: true,
+                            targets: { chrome: '96' },
+                            corejs: {
+                                version: require('./package.json').devDependencies['core-js'],
+                            },
+                        },
+                    ],
+                ],
                 plugins: [require.resolve('react-refresh/babel')],
             },
             production: {

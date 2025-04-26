@@ -148,27 +148,88 @@ export async function setupTranslator() {
         // 处理语言切换和输入替换
         async function handleSwitch(swapped: boolean, originalText: string) {
             if (swapped) {
-                // 更新配置
-                const newConfig = {
-                    ...config,
-                    ...flipLanguages(config.sourceLanguage, config.targetLanguage),
-                };
+                logger.group('切换输入功能');
+                logger.info('用户点击切换按钮', { originalText });
 
-                // 保存新配置
-                chrome.storage.sync.set({ translatorConfig: newConfig });
+                try {
+                    // 更新配置 - 翻转源语言和目标语言
+                    const newConfig = {
+                        ...config,
+                        ...flipLanguages(config.sourceLanguage, config.targetLanguage),
+                    };
 
-                // 获取当前输入框值的翻译结果
-                const translated = await translateText(
-                    originalText,
-                    config.sourceLanguage,
-                    config.targetLanguage,
-                );
+                    // 保存新配置
+                    logger.debug('保存新的语言配置', {
+                        from: newConfig.sourceLanguage,
+                        to: newConfig.targetLanguage,
+                    });
+                    chrome.storage.sync.set({ translatorConfig: newConfig });
 
-                // 更新输入框值
-                searchInput.value = translated;
+                    // 获取当前输入框值的翻译结果
+                    logger.debug('开始翻译原文本', { text: originalText });
+                    const translated = await translateText(
+                        originalText,
+                        config.sourceLanguage,
+                        config.targetLanguage,
+                    );
 
-                // 触发input事件以更新搜索建议
-                searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    logger.info('翻译完成', {
+                        originalText,
+                        translatedText: translated,
+                        success: translated !== originalText,
+                    });
+
+                    // 使用更可靠的方法更新输入框值
+                    if (
+                        searchInput.tagName.toLowerCase() === 'textarea' ||
+                        searchInput.tagName.toLowerCase() === 'input'
+                    ) {
+                        // 1. 模拟获取焦点
+                        searchInput.focus();
+
+                        // 2. 清空当前值并设置新值
+                        searchInput.value = translated;
+
+                        // 3. 触发多种事件确保Google搜索能识别变化
+                        const events = ['input', 'change', 'keyup', 'keydown', 'keypress'];
+
+                        // 使用更精确的事件触发方式
+                        events.forEach((eventType) => {
+                            const event = new Event(eventType, { bubbles: true, cancelable: true });
+                            searchInput.dispatchEvent(event);
+                        });
+
+                        // 4. 额外处理：如果是textarea，尝试触发一个合成事件
+                        if (searchInput.tagName.toLowerCase() === 'textarea') {
+                            const textEvent = new InputEvent('input', {
+                                bubbles: true,
+                                cancelable: true,
+                                inputType: 'insertText',
+                                data: translated,
+                            });
+                            searchInput.dispatchEvent(textEvent);
+                        }
+
+                        // 5. 如果上面方法都不生效，尝试使用剪贴板API
+                        setTimeout(async () => {
+                            if (searchInput.value !== translated) {
+                                logger.debug('常规方法未能更新输入框，尝试剪贴板方法');
+                                try {
+                                    await navigator.clipboard.writeText(translated);
+                                    document.execCommand('paste');
+                                } catch (clipboardError) {
+                                    logger.error('剪贴板操作失败', { clipboardError });
+                                }
+                            }
+                        }, 50);
+                    }
+
+                    logger.info('输入框内容已更新', { newValue: searchInput.value });
+                } catch (error) {
+                    logger.error('切换输入时发生错误', { error });
+                } finally {
+                    logger.groupEnd();
+                }
             }
         }
 
